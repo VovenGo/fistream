@@ -1,0 +1,75 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fistream
+  namespace: fistream
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/websocket-services: "jitsi-web"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: fistream.example.com
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: api
+                port:
+                  number: 8080
+          - path: /xmpp-websocket
+            pathType: Prefix
+            backend:
+              service:
+                name: jitsi-web
+                port:
+                  number: 80
+          - path: /colibri-ws
+            pathType: Prefix
+            backend:
+              service:
+                name: jitsi-web
+                port:
+                  number: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api
+                port:
+                  number: 8080
+    - host: meet.fistream.example.com
+      http:
+        paths:
+          - path: /xmpp-websocket
+            pathType: Prefix
+            backend:
+              service:
+                name: jitsi-web
+                port:
+                  number: 80
+          - path: /colibri-ws
+            pathType: Prefix
+            backend:
+              service:
+                name: jitsi-web
+                port:
+                  number: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: jitsi-web
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - fistream.example.com
+      secretName: fistream-tls
+    - hosts:
+        - meet.fistream.example.com
+      secretName: meet-fistream-tls
+

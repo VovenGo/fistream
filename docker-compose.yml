@@ -1,0 +1,146 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: fistream
+      POSTGRES_USER: fistream
+      POSTGRES_PASSWORD: fistream
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fistream -d fistream"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7.4-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    image: migrate/migrate:v4.18.3
+    command:
+      [
+        "-path=/migrations",
+        "-database=postgres://fistream:fistream@postgres:5432/fistream?sslmode=disable",
+        "up",
+      ]
+    volumes:
+      - ./migrations:/migrations:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build:
+      context: .
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgres://fistream:fistream@postgres:5432/fistream?sslmode=disable
+      ALLOWED_ORIGINS: http://localhost:8080,http://localhost:5173
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  web:
+    image: jitsi/web:${JITSI_IMAGE_TAG:-stable-10888}
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    environment:
+      ENABLE_AUTH: 1
+      ENABLE_GUESTS: 0
+      AUTH_TYPE: jwt
+      ENABLE_XMPP_WEBSOCKET: 1
+      ENABLE_COLIBRI_WEBSOCKET: 1
+      PUBLIC_URL: http://localhost:8000
+      XMPP_DOMAIN: ${XMPP_DOMAIN:-meet.jitsi}
+      XMPP_AUTH_DOMAIN: ${XMPP_AUTH_DOMAIN:-auth.meet.jitsi}
+      XMPP_MUC_DOMAIN: ${XMPP_MUC_DOMAIN:-muc.meet.jitsi}
+      XMPP_INTERNAL_MUC_DOMAIN: ${XMPP_INTERNAL_MUC_DOMAIN:-internal-muc.meet.jitsi}
+      XMPP_BOSH_URL_BASE: http://prosody:5280
+      JWT_APP_ID: ${JWT_APP_ID:-fistream}
+      JWT_APP_SECRET: ${JWT_APP_SECRET:-dev-jitsi-secret}
+      JICOFO_AUTH_USER: ${JICOFO_AUTH_USER:-focus}
+      JVB_AUTH_USER: ${JVB_AUTH_USER:-jvb}
+      JVB_BREWERY_MUC: ${JVB_BREWERY_MUC:-jvbbrewery}
+    depends_on:
+      - prosody
+
+  prosody:
+    image: jitsi/prosody:${JITSI_IMAGE_TAG:-stable-10888}
+    restart: unless-stopped
+    expose:
+      - "5222"
+      - "5280"
+    environment:
+      ENABLE_AUTH: 1
+      ENABLE_GUESTS: 0
+      AUTH_TYPE: jwt
+      JWT_APP_ID: ${JWT_APP_ID:-fistream}
+      JWT_APP_SECRET: ${JWT_APP_SECRET:-dev-jitsi-secret}
+      XMPP_DOMAIN: ${XMPP_DOMAIN:-meet.jitsi}
+      XMPP_AUTH_DOMAIN: ${XMPP_AUTH_DOMAIN:-auth.meet.jitsi}
+      XMPP_MUC_DOMAIN: ${XMPP_MUC_DOMAIN:-muc.meet.jitsi}
+      XMPP_INTERNAL_MUC_DOMAIN: ${XMPP_INTERNAL_MUC_DOMAIN:-internal-muc.meet.jitsi}
+      XMPP_GUEST_DOMAIN: ${XMPP_GUEST_DOMAIN:-guest.meet.jitsi}
+      JICOFO_COMPONENT_SECRET: ${JICOFO_COMPONENT_SECRET:-focus-component-secret}
+      JICOFO_AUTH_USER: ${JICOFO_AUTH_USER:-focus}
+      JICOFO_AUTH_PASSWORD: ${JICOFO_AUTH_PASSWORD:-focus-auth-password}
+      JVB_AUTH_USER: ${JVB_AUTH_USER:-jvb}
+      JVB_AUTH_PASSWORD: ${JVB_AUTH_PASSWORD:-jvb-auth-password}
+      JVB_BREWERY_MUC: ${JVB_BREWERY_MUC:-jvbbrewery}
+
+  jicofo:
+    image: jitsi/jicofo:${JITSI_IMAGE_TAG:-stable-10888}
+    restart: unless-stopped
+    environment:
+      ENABLE_AUTH: 1
+      AUTH_TYPE: jwt
+      XMPP_DOMAIN: ${XMPP_DOMAIN:-meet.jitsi}
+      XMPP_AUTH_DOMAIN: ${XMPP_AUTH_DOMAIN:-auth.meet.jitsi}
+      XMPP_INTERNAL_MUC_DOMAIN: ${XMPP_INTERNAL_MUC_DOMAIN:-internal-muc.meet.jitsi}
+      JICOFO_COMPONENT_SECRET: ${JICOFO_COMPONENT_SECRET:-focus-component-secret}
+      JICOFO_AUTH_USER: ${JICOFO_AUTH_USER:-focus}
+      JICOFO_AUTH_PASSWORD: ${JICOFO_AUTH_PASSWORD:-focus-auth-password}
+    depends_on:
+      - prosody
+
+  jvb:
+    image: jitsi/jvb:${JITSI_IMAGE_TAG:-stable-10888}
+    restart: unless-stopped
+    ports:
+      - "10000:10000/udp"
+      - "127.0.0.1:9090:9090"
+    environment:
+      XMPP_SERVER: prosody
+      XMPP_DOMAIN: ${XMPP_DOMAIN:-meet.jitsi}
+      XMPP_AUTH_DOMAIN: ${XMPP_AUTH_DOMAIN:-auth.meet.jitsi}
+      XMPP_INTERNAL_MUC_DOMAIN: ${XMPP_INTERNAL_MUC_DOMAIN:-internal-muc.meet.jitsi}
+      XMPP_MUC_DOMAIN: ${XMPP_MUC_DOMAIN:-muc.meet.jitsi}
+      JVB_AUTH_USER: ${JVB_AUTH_USER:-jvb}
+      JVB_AUTH_PASSWORD: ${JVB_AUTH_PASSWORD:-jvb-auth-password}
+      JVB_BREWERY_MUC: ${JVB_BREWERY_MUC:-jvbbrewery}
+      JVB_PORT: 10000
+      DOCKER_HOST_ADDRESS: 127.0.0.1
+    depends_on:
+      - prosody
+
+volumes:
+  postgres_data:
+

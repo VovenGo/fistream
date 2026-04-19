@@ -1,0 +1,253 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jitsi-web
+  namespace: fistream
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jitsi-web
+  template:
+    metadata:
+      labels:
+        app: jitsi-web
+    spec:
+      containers:
+        - name: web
+          image: jitsi/web:stable-10888
+          ports:
+            - containerPort: 80
+          env:
+            - name: ENABLE_AUTH
+              value: "1"
+            - name: AUTH_TYPE
+              value: "jwt"
+            - name: ENABLE_GUESTS
+              value: "0"
+            - name: ENABLE_XMPP_WEBSOCKET
+              value: "1"
+            - name: ENABLE_COLIBRI_WEBSOCKET
+              value: "1"
+            - name: XMPP_DOMAIN
+              value: meet.jitsi
+            - name: XMPP_AUTH_DOMAIN
+              value: auth.meet.jitsi
+            - name: XMPP_MUC_DOMAIN
+              value: muc.meet.jitsi
+            - name: XMPP_INTERNAL_MUC_DOMAIN
+              value: internal-muc.meet.jitsi
+            - name: XMPP_BOSH_URL_BASE
+              value: http://prosody:5280
+            - name: JWT_APP_ID
+              valueFrom:
+                secretKeyRef:
+                  name: fistream-secrets
+                  key: jitsi-app-id
+            - name: JWT_APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: fistream-secrets
+                  key: jitsi-app-secret
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prosody
+  namespace: fistream
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prosody
+  template:
+    metadata:
+      labels:
+        app: prosody
+    spec:
+      containers:
+        - name: prosody
+          image: jitsi/prosody:stable-10888
+          ports:
+            - containerPort: 5222
+            - containerPort: 5280
+          env:
+            - name: ENABLE_AUTH
+              value: "1"
+            - name: AUTH_TYPE
+              value: "jwt"
+            - name: ENABLE_GUESTS
+              value: "0"
+            - name: XMPP_DOMAIN
+              value: meet.jitsi
+            - name: XMPP_AUTH_DOMAIN
+              value: auth.meet.jitsi
+            - name: XMPP_MUC_DOMAIN
+              value: muc.meet.jitsi
+            - name: XMPP_INTERNAL_MUC_DOMAIN
+              value: internal-muc.meet.jitsi
+            - name: XMPP_GUEST_DOMAIN
+              value: guest.meet.jitsi
+            - name: JWT_APP_ID
+              valueFrom:
+                secretKeyRef:
+                  name: fistream-secrets
+                  key: jitsi-app-id
+            - name: JWT_APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: fistream-secrets
+                  key: jitsi-app-secret
+            - name: JICOFO_COMPONENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: fistream-secrets
+                  key: jicofo-component-secret
+            - name: JICOFO_AUTH_USER
+              value: focus
+            - name: JICOFO_AUTH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fistream-secrets
+                  key: jicofo-auth-password
+            - name: JVB_AUTH_USER
+              value: jvb
+            - name: JVB_AUTH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fistream-secrets
+                  key: jvb-auth-password
+            - name: JVB_BREWERY_MUC
+              value: jvbbrewery
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jicofo
+  namespace: fistream
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jicofo
+  template:
+    metadata:
+      labels:
+        app: jicofo
+    spec:
+      containers:
+        - name: jicofo
+          image: jitsi/jicofo:stable-10888
+          env:
+            - name: AUTH_TYPE
+              value: jwt
+            - name: ENABLE_AUTH
+              value: "1"
+            - name: XMPP_DOMAIN
+              value: meet.jitsi
+            - name: XMPP_AUTH_DOMAIN
+              value: auth.meet.jitsi
+            - name: XMPP_INTERNAL_MUC_DOMAIN
+              value: internal-muc.meet.jitsi
+            - name: JICOFO_COMPONENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: fistream-secrets
+                  key: jicofo-component-secret
+            - name: JICOFO_AUTH_USER
+              value: focus
+            - name: JICOFO_AUTH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fistream-secrets
+                  key: jicofo-auth-password
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jvb
+  namespace: fistream
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jvb
+  template:
+    metadata:
+      labels:
+        app: jvb
+    spec:
+      containers:
+        - name: jvb
+          image: jitsi/jvb:stable-10888
+          ports:
+            - containerPort: 10000
+              protocol: UDP
+          env:
+            - name: XMPP_SERVER
+              value: prosody
+            - name: XMPP_DOMAIN
+              value: meet.jitsi
+            - name: XMPP_AUTH_DOMAIN
+              value: auth.meet.jitsi
+            - name: XMPP_INTERNAL_MUC_DOMAIN
+              value: internal-muc.meet.jitsi
+            - name: XMPP_MUC_DOMAIN
+              value: muc.meet.jitsi
+            - name: JVB_AUTH_USER
+              value: jvb
+            - name: JVB_AUTH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fistream-secrets
+                  key: jvb-auth-password
+            - name: JVB_BREWERY_MUC
+              value: jvbbrewery
+            - name: JVB_PORT
+              value: "10000"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jitsi-web
+  namespace: fistream
+spec:
+  selector:
+    app: jitsi-web
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prosody
+  namespace: fistream
+spec:
+  selector:
+    app: prosody
+  ports:
+    - name: c2s
+      port: 5222
+      targetPort: 5222
+    - name: bosh
+      port: 5280
+      targetPort: 5280
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jvb-udp
+  namespace: fistream
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  selector:
+    app: jvb
+  ports:
+    - name: media
+      protocol: UDP
+      port: 10000
+      targetPort: 10000
+

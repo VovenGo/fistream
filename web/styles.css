@@ -1,0 +1,236 @@
+:root {
+  color-scheme: dark;
+  --bg: #07070d;
+  --panel: rgba(18, 18, 31, 0.82);
+  --panel-strong: rgba(29, 27, 50, 0.94);
+  --text: #f7f3ff;
+  --muted: #a7a0ba;
+  --accent: #278f76;
+  --accent-2: #39b593;
+  --danger: #e85d75;
+  --line: rgba(255, 255, 255, 0.12);
+  font-family: "Segoe UI", "Noto Sans", ui-sans-serif, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(39, 143, 118, 0.35), transparent 28rem),
+    radial-gradient(circle at bottom right, rgba(57, 181, 147, 0.2), transparent 32rem),
+    var(--bg);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.85rem 1.15rem;
+  color: white;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  cursor: pointer;
+  font-weight: 700;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  padding: 0.85rem 1rem;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+  outline: none;
+}
+
+input:focus {
+  border-color: var(--accent-2);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2.2rem;
+  min-height: 100vh;
+  padding: 2.5rem 1.25rem 3rem;
+  text-align: center;
+}
+
+.pressure-title {
+  position: relative;
+  margin: 0;
+  font-size: clamp(4rem, 16vw, 13rem);
+  line-height: 0.85;
+  letter-spacing: -0.1em;
+  font-weight: 950;
+  color: transparent;
+  -webkit-text-stroke: 2px var(--accent);
+  text-shadow: 0 0 42px rgba(39, 143, 118, 0.45);
+  transition: letter-spacing 160ms ease, transform 160ms ease;
+  user-select: none;
+}
+
+.pressure-title::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  color: rgba(57, 181, 147, 0.08);
+  transform: translate(0.07em, 0.05em);
+}
+
+.pressure-title:hover {
+  letter-spacing: -0.14em;
+  transform: scaleX(1.04);
+}
+
+.panel {
+  border: 1px solid var(--line);
+  border-radius: 1.5rem;
+  background: var(--panel);
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(18px);
+}
+
+.hero__panel {
+  width: min(100%, 23rem);
+  margin-inline: auto;
+  margin-top: 1.4rem;
+  padding: 0.8rem;
+  text-align: left;
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tab {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.tab--active {
+  color: white;
+  background: var(--panel-strong);
+}
+
+.form {
+  display: grid;
+  gap: 1rem;
+}
+
+.form label {
+  display: grid;
+  gap: 0.45rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.room {
+  width: min(1280px, calc(100% - 2rem));
+  margin: 1rem auto;
+  display: grid;
+  gap: 1rem;
+}
+
+.room__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 1rem;
+}
+
+#room-code {
+  display: block;
+  font-size: 1.5rem;
+  letter-spacing: 0.15em;
+}
+
+.room__actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.button-secondary {
+  color: var(--text);
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.button-danger {
+  background: linear-gradient(135deg, #8f2036, var(--danger));
+}
+
+.conference {
+  min-height: calc(100vh - 9rem);
+  padding: 0.6rem;
+}
+
+.jitsi-container {
+  width: 100%;
+  min-height: calc(100vh - 10.2rem);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.toast {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  max-width: 28rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: var(--panel-strong);
+  color: var(--text);
+}
+
+@media (max-width: 920px) {
+  .room {
+    width: calc(100% - 1rem);
+  }
+
+  .conference {
+    min-height: calc(100vh - 10rem);
+  }
+
+  .jitsi-container {
+    min-height: calc(100vh - 11rem);
+  }
+}
+

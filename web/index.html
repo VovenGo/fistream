@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>fistream</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <main id="app">
+      <section class="hero" id="landing">
+        <h1 class="pressure-title" data-text="fistream">fistream</h1>
+
+        <div class="panel hero__panel">
+          <div class="tabs">
+            <button class="tab tab--active" data-tab="create" type="button">Создать комнату</button>
+            <button class="tab" data-tab="join" type="button">Войти в комнату</button>
+          </div>
+
+          <form id="create-form" class="form" autocomplete="off">
+            <label>
+              Имя
+              <input
+                name="display_name"
+                maxlength="40"
+                placeholder="Ваше имя"
+                required
+                autocomplete="off"
+                autocapitalize="none"
+                spellcheck="false"
+                data-lpignore="true"
+              />
+            </label>
+            <label>
+              Пароль от сервиса
+              <input
+                name="service_password"
+                type="password"
+                required
+                autocomplete="off"
+                autocapitalize="none"
+                spellcheck="false"
+                data-lpignore="true"
+              />
+            </label>
+            <button type="submit">Войти</button>
+          </form>
+
+          <form id="join-form" class="form hidden" autocomplete="off">
+            <label>
+              Имя
+              <input
+                name="display_name"
+                maxlength="40"
+                placeholder="Ваше имя"
+                required
+                autocomplete="off"
+                autocapitalize="none"
+                spellcheck="false"
+                data-lpignore="true"
+              />
+            </label>
+            <label>
+              Код комнаты
+              <input
+                name="room_code"
+                maxlength="6"
+                placeholder="ABC123"
+                required
+                autocomplete="off"
+                autocapitalize="none"
+                spellcheck="false"
+                data-lpignore="true"
+              />
+            </label>
+            <label>
+              Пароль от сервиса
+              <input
+                name="service_password"
+                type="password"
+                required
+                autocomplete="off"
+                autocapitalize="none"
+                spellcheck="false"
+                data-lpignore="true"
+              />
+            </label>
+            <button type="submit">Войти</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="room hidden" id="room-view">
+        <header class="room__header panel">
+          <div>
+            <span class="muted">комната</span>
+            <strong id="room-code">------</strong>
+          </div>
+          <div class="room__actions">
+            <button id="copy-room-link" class="button-secondary" type="button">Скопировать ссылку</button>
+            <button id="close-room" class="button-danger" type="button">Закрыть комнату</button>
+            <button id="leave-room" class="button-secondary" type="button">На главную</button>
+          </div>
+        </header>
+
+        <section class="panel conference" id="conference-panel">
+          <div id="jitsi-container" class="jitsi-container"></div>
+        </section>
+      </section>
+    </main>
+
+    <div class="toast hidden" id="toast"></div>
+    <script src="/assets/app.js" type="module"></script>
+  </body>
+</html>
+

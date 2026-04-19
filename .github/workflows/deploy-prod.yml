@@ -1,0 +1,42 @@
+name: deploy-prod
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Configure kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Set kubeconfig
+        run: |
+          mkdir -p "$HOME/.kube"
+          echo "${KUBE_CONFIG_DATA}" | base64 -d > "$HOME/.kube/config"
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+
+      - name: Render image tag
+        run: |
+          sed "s|REPLACE_IMAGE|${DOCKERHUB_USERNAME}/fistream-api:${GITHUB_SHA}|g" deploy/k8s/api.yaml > /tmp/api.yaml
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+
+      - name: Apply manifests
+        run: |
+          kubectl apply -f deploy/k8s/namespace.yaml
+          kubectl apply -f deploy/k8s/postgres.yaml
+          kubectl apply -f deploy/k8s/migrations-configmap.yaml
+          kubectl delete job -n fistream fistream-migrate --ignore-not-found=true
+          kubectl apply -f deploy/k8s/migrate.yaml
+          kubectl wait --for=condition=complete --timeout=300s job/fistream-migrate -n fistream
+          kubectl apply -f deploy/k8s/jitsi.yaml
+          kubectl apply -f /tmp/api.yaml
+          kubectl apply -f deploy/k8s/ingress.yaml
+
