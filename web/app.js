@@ -138,6 +138,7 @@ const mountJitsi = async (jitsi) => {
       disableDeepLinking: true,
       disablePolls: true,
       disableInviteFunctions: true,
+      disabledNotifications: ["notify.moderator"],
       participantsPane: {
         enabled: false,
       },

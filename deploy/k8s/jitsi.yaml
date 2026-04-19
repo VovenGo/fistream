@@ -185,7 +185,7 @@ spec:
         - name: jvb
           image: jitsi/jvb:stable-10888
           ports:
-            - containerPort: 10000
+            - containerPort: 31000
               protocol: UDP
           env:
             - name: XMPP_SERVER
@@ -208,7 +208,7 @@ spec:
             - name: JVB_BREWERY_MUC
               value: jvbbrewery
             - name: JVB_PORT
-              value: "10000"
+              value: "31000"
             - name: JVB_ADVERTISE_IPS
               value: 64.188.59.53
 ---
@@ -255,7 +255,7 @@ spec:
   ports:
     - name: media
       protocol: UDP
-      port: 10000
-      targetPort: 10000
+      port: 31000
+      targetPort: 31000
       nodePort: 31000
 
