@@ -110,17 +110,26 @@ const mountJitsi = async (jitsi) => {
   state.api = new window.JitsiMeetExternalAPI(domain, {
     roomName: jitsi.room_name,
     parentNode: els.jitsiContainer,
+    width: "100%",
+    height: "100%",
     jwt: jitsi.jwt,
     userInfo: {
       displayName: jitsi.display_name,
     },
     configOverwrite: {
       prejoinPageEnabled: false,
+      prejoinConfig: {
+        enabled: false,
+      },
       disableDeepLinking: true,
     },
     interfaceConfigOverwrite: {
       APP_NAME: "fistream",
       SHOW_JITSI_WATERMARK: false,
+      SHOW_WATERMARK_FOR_GUESTS: false,
+      SHOW_BRAND_WATERMARK: false,
+      JITSI_WATERMARK_LINK: "",
+      BRAND_WATERMARK_LINK: "",
     },
   });
 };
@@ -218,5 +227,3 @@ const boot = () => {
 };
 
 boot();
-
-
