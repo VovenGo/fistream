@@ -38,15 +38,37 @@ RUN bundle="/usr/share/jitsi-meet/libs/app.bundle.min.js"; \
     "$bundle"; \
   grep -q 'r.includes("shortcuts")&&!b&&g.push({name:WG,component:J2,labelKey:"settings.shortcuts"' "$bundle"
 
+# Cache-bust virtual background and locale resource URLs referenced from app bundle.
+RUN bundle="/usr/share/jitsi-meet/libs/app.bundle.min.js"; \
+  marker="9139-fistream-backgrounds2"; \
+  set -eu; \
+  grep -q 'images/virtual-background/background-1.jpg' "$bundle"; \
+  grep -q 'images/virtual-background/background-7.jpg' "$bundle"; \
+  grep -q 'lang/{{ns}}-{{lng}}.json' "$bundle"; \
+  grep -q 'lang/{{ns}}.json' "$bundle"; \
+  sed -i "s#images/virtual-background/background-1.jpg#images/virtual-background/background-1.jpg?v=${marker}#g" "$bundle"; \
+  sed -i "s#images/virtual-background/background-2.jpg#images/virtual-background/background-2.jpg?v=${marker}#g" "$bundle"; \
+  sed -i "s#images/virtual-background/background-3.jpg#images/virtual-background/background-3.jpg?v=${marker}#g" "$bundle"; \
+  sed -i "s#images/virtual-background/background-4.jpg#images/virtual-background/background-4.jpg?v=${marker}#g" "$bundle"; \
+  sed -i "s#images/virtual-background/background-5.jpg#images/virtual-background/background-5.jpg?v=${marker}#g" "$bundle"; \
+  sed -i "s#images/virtual-background/background-6.jpg#images/virtual-background/background-6.jpg?v=${marker}#g" "$bundle"; \
+  sed -i "s#images/virtual-background/background-7.jpg#images/virtual-background/background-7.jpg?v=${marker}#g" "$bundle"; \
+  sed -i "s#lang/{{ns}}-{{lng}}.json#lang/{{ns}}-{{lng}}.json?v=${marker}#g" "$bundle"; \
+  sed -i "s#lang/{{ns}}.json#lang/{{ns}}.json?v=${marker}#g" "$bundle"; \
+  grep -q "images/virtual-background/background-1.jpg?v=${marker}" "$bundle"; \
+  grep -q "images/virtual-background/background-7.jpg?v=${marker}" "$bundle"; \
+  grep -q "lang/{{ns}}-{{lng}}.json?v=${marker}" "$bundle"; \
+  grep -q "lang/{{ns}}.json?v=${marker}" "$bundle"
+
 # Bump static asset query marker to force clients to fetch fresh JS/CSS after hotfix.
 RUN index="/usr/share/jitsi-meet/index.html"; \
   set -eu; \
   grep -q 'css/all.css?v=9139' "$index"; \
   grep -q 'libs/lib-jitsi-meet.min.js?v=9139' "$index"; \
   grep -q 'libs/app.bundle.min.js?v=9139' "$index"; \
-  sed -i 's/css\/all.css?v=9139/css\/all.css?v=9139-fistream-settings3/g' "$index"; \
-  sed -i 's/libs\/lib-jitsi-meet.min.js?v=9139/libs\/lib-jitsi-meet.min.js?v=9139-fistream-settings3/g' "$index"; \
-  sed -i 's/libs\/app.bundle.min.js?v=9139/libs\/app.bundle.min.js?v=9139-fistream-settings3/g' "$index"; \
-  grep -q 'css/all.css?v=9139-fistream-settings3' "$index"; \
-  grep -q 'libs/lib-jitsi-meet.min.js?v=9139-fistream-settings3' "$index"; \
-  grep -q 'libs/app.bundle.min.js?v=9139-fistream-settings3' "$index"
+  sed -i 's/css\/all.css?v=9139/css\/all.css?v=9139-fistream-settings4/g' "$index"; \
+  sed -i 's/libs\/lib-jitsi-meet.min.js?v=9139/libs\/lib-jitsi-meet.min.js?v=9139-fistream-settings4/g' "$index"; \
+  sed -i 's/libs\/app.bundle.min.js?v=9139/libs\/app.bundle.min.js?v=9139-fistream-settings4/g' "$index"; \
+  grep -q 'css/all.css?v=9139-fistream-settings4' "$index"; \
+  grep -q 'libs/lib-jitsi-meet.min.js?v=9139-fistream-settings4' "$index"; \
+  grep -q 'libs/app.bundle.min.js?v=9139-fistream-settings4' "$index"
