@@ -1,0 +1,9 @@
+fistream.vovengo.com {
+  encode zstd gzip
+  reverse_proxy 127.0.0.1:30080
+}
+
+https://fistream.vovengo.com:8443 {
+  encode zstd gzip
+  reverse_proxy 127.0.0.1:30443
+}

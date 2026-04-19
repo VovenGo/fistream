@@ -38,5 +38,6 @@ jobs:
           kubectl wait --for=condition=complete --timeout=300s job/fistream-migrate -n fistream
           kubectl apply -f deploy/k8s/jitsi.yaml
           kubectl apply -f /tmp/api.yaml
-          kubectl apply -f deploy/k8s/ingress.yaml
+          kubectl rollout status deployment/api -n fistream --timeout=300s
+          kubectl rollout status deployment/jitsi-web -n fistream --timeout=300s
 

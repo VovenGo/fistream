@@ -14,6 +14,10 @@ coverage.out
 # Env
 .env
 .env.production
+.secrets.env
+scripts/.env
+scripts/*.local
+deploy/caddy/Caddyfile.local
 
 # IDE
 .vscode/
