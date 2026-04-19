@@ -40,7 +40,7 @@ spec:
             - name: XMPP_INTERNAL_MUC_DOMAIN
               value: internal-muc.meet.jitsi
             - name: XMPP_BOSH_URL_BASE
-              value: http://prosody:5280
+              value: http://prosody.fistream.svc.cluster.local:5280
             - name: JWT_APP_ID
               valueFrom:
                 secretKeyRef:
@@ -151,6 +151,8 @@ spec:
               value: auth.meet.jitsi
             - name: XMPP_INTERNAL_MUC_DOMAIN
               value: internal-muc.meet.jitsi
+            - name: XMPP_SERVER
+              value: prosody.fistream.svc.cluster.local
             - name: JICOFO_COMPONENT_SECRET
               valueFrom:
                 secretKeyRef:
@@ -187,7 +189,7 @@ spec:
               protocol: UDP
           env:
             - name: XMPP_SERVER
-              value: prosody
+              value: prosody.fistream.svc.cluster.local
             - name: XMPP_DOMAIN
               value: meet.jitsi
             - name: XMPP_AUTH_DOMAIN

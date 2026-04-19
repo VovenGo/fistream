@@ -18,6 +18,9 @@ const els = {
   toast: document.querySelector("#toast"),
 };
 
+const TRANSPARENT_LOGO_DATA_URI =
+  "data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=";
+
 const toast = (message) => {
   if (!message) return;
   els.toast.textContent = message;
@@ -122,6 +125,8 @@ const mountJitsi = async (jitsi) => {
         enabled: false,
       },
       disableDeepLinking: true,
+      defaultLogoUrl: TRANSPARENT_LOGO_DATA_URI,
+      defaultWelcomePageLogoUrl: TRANSPARENT_LOGO_DATA_URI,
     },
     interfaceConfigOverwrite: {
       APP_NAME: "fistream",
