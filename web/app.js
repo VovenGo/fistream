@@ -20,6 +20,17 @@ const els = {
 
 const TRANSPARENT_LOGO_DATA_URI =
   "data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=";
+const JITSI_TOOLBAR_BUTTONS = [
+  "microphone",
+  "camera",
+  "desktop",
+  "chat",
+  "raisehand",
+  "tileview",
+  "fullscreen",
+  "settings",
+  "select-background",
+];
 
 const toast = (message) => {
   if (!message) return;
@@ -125,11 +136,18 @@ const mountJitsi = async (jitsi) => {
         enabled: false,
       },
       disableDeepLinking: true,
+      disablePolls: true,
+      disableInviteFunctions: true,
+      participantsPane: {
+        enabled: false,
+      },
+      toolbarButtons: JITSI_TOOLBAR_BUTTONS,
       defaultLogoUrl: TRANSPARENT_LOGO_DATA_URI,
       defaultWelcomePageLogoUrl: TRANSPARENT_LOGO_DATA_URI,
     },
     interfaceConfigOverwrite: {
       APP_NAME: "fistream",
+      HIDE_INVITE_MORE_HEADER: true,
       SHOW_JITSI_WATERMARK: false,
       SHOW_WATERMARK_FOR_GUESTS: false,
       SHOW_BRAND_WATERMARK: false,
