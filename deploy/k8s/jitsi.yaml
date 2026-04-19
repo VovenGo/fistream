@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: jitsi/web:stable-10888
+          image: vovengo/fistream-jitsi-web:stable-10888-fistream-settings1
           ports:
             - containerPort: 80
           env:

@@ -138,6 +138,9 @@ const mountJitsi = async (jitsi) => {
       disableDeepLinking: true,
       disablePolls: true,
       disableInviteFunctions: true,
+      notifications: [],
+      disableProfile: true,
+      disableShortcuts: true,
       disabledNotifications: ["notify.moderator"],
       participantsPane: {
         enabled: false,
@@ -154,6 +157,7 @@ const mountJitsi = async (jitsi) => {
       SHOW_BRAND_WATERMARK: false,
       JITSI_WATERMARK_LINK: "",
       BRAND_WATERMARK_LINK: "",
+      SETTINGS_SECTIONS: ["devices", "language", "calendar", "more"],
     },
   });
 };
