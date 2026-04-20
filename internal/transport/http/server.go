@@ -154,26 +154,64 @@ func writeJSON(w http.ResponseWriter, code int, payload any) {
 }
 
 func writeError(w http.ResponseWriter, err error) {
-	switch {
-	case errors.Is(err, domain.ErrInvalidServicePassword):
-		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "invalid_service_password", "message": "service password is invalid"})
-	case errors.Is(err, domain.ErrInvalidDisplayName):
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid_display_name", "message": "display_name is required"})
-	case errors.Is(err, domain.ErrInvalidRoomCode):
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid_room_code", "message": "room_code is invalid"})
-	case errors.Is(err, domain.ErrRoomNotFound):
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "room_not_found", "message": "room not found"})
-	case errors.Is(err, domain.ErrRoomClosed):
-		writeJSON(w, http.StatusGone, map[string]string{"error": "room_closed", "message": "room is closed"})
-	case errors.Is(err, domain.ErrRoomExpired):
-		writeJSON(w, http.StatusGone, map[string]string{"error": "room_expired", "message": "room expired"})
-	case errors.Is(err, domain.ErrInvalidToken):
-		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "invalid_token", "message": "authorization token is invalid"})
-	case errors.Is(err, domain.ErrNotHost):
-		writeJSON(w, http.StatusForbidden, map[string]string{"error": "not_room_host", "message": "only room host can close the room"})
-	default:
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "internal_error", "message": "internal server error"})
+	if mapped, ok := mapDomainError(err); ok {
+		writeJSON(w, mapped.status, map[string]string{"error": mapped.code, "message": mapped.message})
+		return
 	}
+	writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "internal_error", "message": "internal server error"})
+}
+
+type domainHTTPError struct {
+	status  int
+	code    string
+	message string
+}
+
+func mapDomainError(err error) (domainHTTPError, bool) {
+	catalog := []struct {
+		target error
+		http   domainHTTPError
+	}{
+		{
+			target: domain.ErrInvalidServicePassword,
+			http:   domainHTTPError{status: http.StatusUnauthorized, code: "invalid_service_password", message: "service password is invalid"},
+		},
+		{
+			target: domain.ErrInvalidDisplayName,
+			http:   domainHTTPError{status: http.StatusBadRequest, code: "invalid_display_name", message: "display_name is required"},
+		},
+		{
+			target: domain.ErrInvalidRoomCode,
+			http:   domainHTTPError{status: http.StatusBadRequest, code: "invalid_room_code", message: "room_code is invalid"},
+		},
+		{
+			target: domain.ErrRoomNotFound,
+			http:   domainHTTPError{status: http.StatusNotFound, code: "room_not_found", message: "room not found"},
+		},
+		{
+			target: domain.ErrRoomClosed,
+			http:   domainHTTPError{status: http.StatusGone, code: "room_closed", message: "room is closed"},
+		},
+		{
+			target: domain.ErrRoomExpired,
+			http:   domainHTTPError{status: http.StatusGone, code: "room_expired", message: "room expired"},
+		},
+		{
+			target: domain.ErrInvalidToken,
+			http:   domainHTTPError{status: http.StatusUnauthorized, code: "invalid_token", message: "authorization token is invalid"},
+		},
+		{
+			target: domain.ErrNotHost,
+			http:   domainHTTPError{status: http.StatusForbidden, code: "not_room_host", message: "only room host can close the room"},
+		},
+	}
+
+	for _, item := range catalog {
+		if errors.Is(err, item.target) {
+			return item.http, true
+		}
+	}
+	return domainHTTPError{}, false
 }
 
 func bearerToken(r *http.Request) string {
@@ -195,4 +233,3 @@ func clientFingerprint(r *http.Request) string {
 	}
 	return value
 }
-

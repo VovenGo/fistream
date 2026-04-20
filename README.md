@@ -1,21 +1,21 @@
 # fistream
 
-`fistream` — приватные временные комнаты видеосвязи (аудио/видео/демонстрация экрана) с входом по `Имя + Пароль от сервиса` и встроенным Jitsi без регистрации.
+`fistream` — приватные временные комнаты видеосвязи (аудио, веб-камера, демонстрация экрана) со входом по `Имя + Пароль от сервиса` и встроенным Jitsi без регистрации.
 
-## Что уже реализовано
+## Что реализовано
 
-- Главная страница в стиле `fimstrimWWW` с двумя сценариями:
+- Главная страница с двумя сценариями:
   - `Создать комнату`: `Имя`, `Пароль от сервиса`, кнопка `Войти`
   - `Войти в комнату`: `Имя`, `Код комнаты`, `Пароль от сервиса`, кнопка `Войти`
 - Поле `Пароль комнаты` отсутствует в UI и API.
-- Поля ввода отключают автоподстановку (`autocomplete=off`).
+- Для полей ввода отключены подсказки/автоподстановка (`autocomplete="off"`).
 - Backend на Go + PostgreSQL:
   - `POST /api/v1/rooms/create`
   - `POST /api/v1/rooms/join`
   - `POST /api/v1/rooms/{code}/close`
   - `GET /api/v1/config`, `GET /healthz`, `GET /readyz`
 - Комнаты временные (`A-Z0-9`, 6 символов), с TTL и ручным закрытием хостом.
-- Jitsi JWT выдается backend-ом после проверки `SERVICE_ACCESS_PASSWORD`.
+- Jitsi JWT выдается backend после проверки `SERVICE_ACCESS_PASSWORD`.
 
 ## Локальный запуск
 
@@ -33,9 +33,9 @@ docker compose up --build
 - Публичный домен app/API: `https://fistream.vovengo.com`
 - Публичный домен Jitsi (тот же host, отдельный порт): `https://fistream.vovengo.com:8443`
 - Kubernetes: k3s (без Traefik), сервисы публикуются через NodePort.
-- Edge TLS/Reverse proxy: Caddy на хосте.
+- Edge TLS/reverse proxy: Caddy на хосте.
 
-Подробности: [deploy/k8s/README.md](deploy/k8s/README.md)
+Подробности: `deploy/k8s/README.md`
 
 ## GitHub Secrets через API
 
@@ -65,7 +65,7 @@ python scripts/set_github_secrets.py \
 python scripts/generate_fistream_secrets.py > .secrets.env
 ```
 
-Далее создать secret:
+Создание секрета:
 ```bash
 kubectl -n fistream create secret generic fistream-secrets \
   --from-env-file=.secrets.env

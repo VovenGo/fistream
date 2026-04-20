@@ -110,8 +110,9 @@ func defaultServiceForTest(store RoomStore) *RoomService {
 		APITokenSecret:        "api-secret",
 		APITokenTTL:           6 * time.Hour,
 	})
+	baseNow := time.Now().UTC().Add(-time.Minute)
 	svc.clock = func() time.Time {
-		return time.Date(2026, 4, 19, 12, 0, 0, 0, time.UTC)
+		return baseNow
 	}
 	return svc
 }
