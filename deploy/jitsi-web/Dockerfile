@@ -16,6 +16,7 @@ COPY deploy/jitsi-web/reactions/mlg-airhorn.mp3 /usr/share/jitsi-meet/sounds/mlg
 COPY deploy/jitsi-web/reactions/anime-wow.mp3 /usr/share/jitsi-meet/sounds/anime-wow.mp3
 COPY deploy/jitsi-web/reactions/vine-boom.mp3 /usr/share/jitsi-meet/sounds/vine-boom.mp3
 COPY deploy/jitsi-web/reactions/among-us.mp3 /usr/share/jitsi-meet/sounds/among-us.mp3
+COPY deploy/jitsi-web/reactions/pribyl-godzho-satoru.mp3 /usr/share/jitsi-meet/sounds/pribyl-godzho-satoru.mp3
 
 # Rename Russian virtual background labels to match fistream custom set.
 RUN lang="/usr/share/jitsi-meet/lang/main-ru.json"; \
@@ -46,7 +47,7 @@ RUN bundle="/usr/share/jitsi-meet/libs/app.bundle.min.js"; \
     "$bundle"; \
   grep -q 'r.includes("shortcuts")&&!b&&g.push({name:WG,component:J2,labelKey:"settings.shortcuts"' "$bundle"
 
-# Replace reactions menu emojis/sounds and drop the 7th "love" reaction.
+# Replace reactions menu emojis/sounds, keep 7 reactions, disable reaction tooltip and Alt shortcuts.
 RUN bundle="/usr/share/jitsi-meet/libs/app.bundle.min.js"; \
   set -eu; \
   grep -q 'reactions-thumbs-up.mp3' "$bundle"; \
@@ -62,27 +63,36 @@ RUN bundle="/usr/share/jitsi-meet/libs/app.bundle.min.js"; \
   sed -i 's/reactions-surprise.mp3/anime-wow.mp3/g' "$bundle"; \
   sed -i 's/reactions-boo.mp3/vine-boom.mp3/g' "$bundle"; \
   sed -i 's/reactions-crickets.mp3/among-us.mp3/g' "$bundle"; \
-  sed -i 's/reactions-love.mp3/among-us.mp3/g' "$bundle"; \
+  sed -i 's/reactions-love.mp3/pribyl-godzho-satoru.mp3/g' "$bundle"; \
   sed -i 's/like:{message:":thumbs_up:",emoji:"[^"]*"/like:{message:"\\ud83d\\udca9",emoji:"\\ud83d\\udca9"/' "$bundle"; \
   sed -i 's/clap:{message:":clap:",emoji:"[^"]*"/clap:{message:"\\ud83c\\udf46",emoji:"\\ud83c\\udf46"/' "$bundle"; \
   sed -i 's/laugh:{message:":grinning_face:",emoji:"[^"]*"/laugh:{message:"\\ud83e\\udd11",emoji:"\\ud83e\\udd11"/' "$bundle"; \
   sed -i 's/surprised:{message:":face_with_open_mouth:",emoji:"[^"]*"/surprised:{message:"\\ud83c\\udf51",emoji:"\\ud83c\\udf51"/' "$bundle"; \
   sed -i 's/boo:{message:":slightly_frowning_face:",emoji:"[^"]*"/boo:{message:"\\ud83e\\udd21",emoji:"\\ud83e\\udd21"/' "$bundle"; \
   sed -i 's/silence:{message:":face_without_mouth:",emoji:"[^"]*"/silence:{message:"\\ud83d\\udc79",emoji:"\\ud83d\\udc79"/' "$bundle"; \
-  sed -i 's/,love:{message:":heart:",emoji:"[^"]*",shortcutChar:"H",soundId:`${HJ}_HEART_`,soundFiles:FJ}//' "$bundle"; \
+  sed -i 's/love:{message:":heart:",emoji:"[^"]*"/love:{message:"\\ud83d\\ude0e",emoji:"\\ud83d\\ude0e"/' "$bundle"; \
+  grep -q 'tooltip:`${t(`toolbar.${n}`)} (${r} + ${YJ[n].shortcutChar})`' "$bundle"; \
+  sed -i 's/tooltip:`${t(`toolbar.${n}`)} (${r} + ${YJ[n].shortcutChar})`/tooltip:void 0/g' "$bundle"; \
+  grep -q 'a&&(Object.keys(YJ).map((e=>({character:YJ[e].shortcutChar,exec:()=>{t(PJ(e)),lU(cO(`reaction.${e}`))},helpDescription:`toolbar.reaction${e.charAt(0).toUpperCase()}${e.slice(1)}`,altKey:!0}))).forEach((e=>{t($4({alt:e.altKey,character:e.character,handler:e.exec,helpDescription:e.helpDescription}))})),d)' "$bundle"; \
+  sed -i 's/a&&(Object.keys(YJ).map((e=>({character:YJ[e].shortcutChar,exec:()=>{t(PJ(e)),lU(cO(`reaction.${e}`))},helpDescription:`toolbar.reaction${e.charAt(0).toUpperCase()}${e.slice(1)}`,altKey:!0}))).forEach((e=>{t($4({alt:e.altKey,character:e.character,handler:e.exec,helpDescription:e.helpDescription}))})),d)/a&&d/g' "$bundle"; \
+  sed -i 's/a&&Object.keys(YJ).map((e=>YJ[e].shortcutChar)).forEach((e=>t(K4(e,!0))))/0/g' "$bundle"; \
   grep -q 'puk-v-ekho.mp3' "$bundle"; \
   grep -q 'gey-echo.mp3' "$bundle"; \
   grep -q 'mlg-airhorn.mp3' "$bundle"; \
   grep -q 'anime-wow.mp3' "$bundle"; \
   grep -q 'vine-boom.mp3' "$bundle"; \
   grep -q 'among-us.mp3' "$bundle"; \
+  grep -q 'pribyl-godzho-satoru.mp3' "$bundle"; \
   grep -q 'like:{message:"\\ud83d\\udca9",emoji:"\\ud83d\\udca9"' "$bundle"; \
   grep -q 'clap:{message:"\\ud83c\\udf46",emoji:"\\ud83c\\udf46"' "$bundle"; \
   grep -q 'laugh:{message:"\\ud83e\\udd11",emoji:"\\ud83e\\udd11"' "$bundle"; \
   grep -q 'surprised:{message:"\\ud83c\\udf51",emoji:"\\ud83c\\udf51"' "$bundle"; \
   grep -q 'boo:{message:"\\ud83e\\udd21",emoji:"\\ud83e\\udd21"' "$bundle"; \
   grep -q 'silence:{message:"\\ud83d\\udc79",emoji:"\\ud83d\\udc79"' "$bundle"; \
-  ! grep -q 'love:{message:":heart:"' "$bundle"
+  grep -q 'love:{message:"\\ud83d\\ude0e",emoji:"\\ud83d\\ude0e"' "$bundle"; \
+  grep -q 'tooltip:void 0' "$bundle"; \
+  ! grep -q 'helpDescription:`toolbar.reaction${e.charAt(0).toUpperCase()}${e.slice(1)}`,altKey:!0' "$bundle"; \
+  ! grep -q 'a&&Object.keys(YJ).map((e=>YJ\\[e\\].shortcutChar)).forEach((e=>t(K4(e,!0))))' "$bundle"
 
 # Cache-bust virtual background and locale resource URLs referenced from app bundle.
 RUN bundle="/usr/share/jitsi-meet/libs/app.bundle.min.js"; \
@@ -112,9 +122,9 @@ RUN index="/usr/share/jitsi-meet/index.html"; \
   grep -q 'css/all.css?v=9139' "$index"; \
   grep -q 'libs/lib-jitsi-meet.min.js?v=9139' "$index"; \
   grep -q 'libs/app.bundle.min.js?v=9139' "$index"; \
-  sed -i 's/css\/all.css?v=9139/css\/all.css?v=9139-fistream-settings5/g' "$index"; \
-  sed -i 's/libs\/lib-jitsi-meet.min.js?v=9139/libs\/lib-jitsi-meet.min.js?v=9139-fistream-settings5/g' "$index"; \
-  sed -i 's/libs\/app.bundle.min.js?v=9139/libs\/app.bundle.min.js?v=9139-fistream-settings5/g' "$index"; \
-  grep -q 'css/all.css?v=9139-fistream-settings5' "$index"; \
-  grep -q 'libs/lib-jitsi-meet.min.js?v=9139-fistream-settings5' "$index"; \
-  grep -q 'libs/app.bundle.min.js?v=9139-fistream-settings5' "$index"
+  sed -i 's/css\/all.css?v=9139/css\/all.css?v=9139-fistream-settings6/g' "$index"; \
+  sed -i 's/libs\/lib-jitsi-meet.min.js?v=9139/libs\/lib-jitsi-meet.min.js?v=9139-fistream-settings6/g' "$index"; \
+  sed -i 's/libs\/app.bundle.min.js?v=9139/libs\/app.bundle.min.js?v=9139-fistream-settings6/g' "$index"; \
+  grep -q 'css/all.css?v=9139-fistream-settings6' "$index"; \
+  grep -q 'libs/lib-jitsi-meet.min.js?v=9139-fistream-settings6' "$index"; \
+  grep -q 'libs/app.bundle.min.js?v=9139-fistream-settings6' "$index"
